@@ -156,7 +156,7 @@ fun XServerScreen(
             // Emulation wiring moved to InputControlsView init block
             mutableStateOf(
                 XServerState(
-                    graphicsDriver = container.graphicsDriver,
+                    graphicsDriver = "turnip",
                     graphicsDriverVersion = container.graphicsDriverVersion,
                     audioDriver = container.audioDriver,
                     dxwrapper = container.dxWrapper,
@@ -1066,6 +1066,7 @@ private fun setupXEnvironment(
 
         envVars.putAll(container.envVars)
         if (!envVars.has("WINEESYNC")) envVars.put("WINEESYNC", "1")
+        Timber.i("Setting WINEESYNC to 1")
 
         // Timber.d("3 Container drives: ${container.drives}")
         val bindingPaths = mutableListOf<String>()
@@ -1808,6 +1809,7 @@ private fun extractGraphicsDriverFiles(
         }
 
         envVars.put("GALLIUM_DRIVER", "zink")
+        Timber.i("Setting GALLIUM_DRIVER to zink")
         envVars.put("TU_OVERRIDE_HEAP_SIZE", "4096")
         if (!envVars.has("MESA_VK_WSI_PRESENT_MODE")) envVars.put("MESA_VK_WSI_PRESENT_MODE", "mailbox")
         envVars.put("vblank_mode", "0")

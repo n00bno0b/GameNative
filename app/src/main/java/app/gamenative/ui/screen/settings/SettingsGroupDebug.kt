@@ -22,9 +22,9 @@ import app.gamenative.service.SteamService
 import app.gamenative.ui.component.dialog.CrashLogDialog
 import app.gamenative.ui.theme.settingsTileColors
 import app.gamenative.ui.theme.settingsTileColorsDebug
-import app.gamenative.ui.component.settings.SettingsGroup
-import app.gamenative.ui.component.settings.SettingsMenuLink
-import app.gamenative.ui.component.settings.SettingsSwitch
+import com.alorma.compose.settings.ui.SettingsGroup
+import com.alorma.compose.settings.ui.SettingsMenuLink
+import com.alorma.compose.settings.ui.SettingsSwitch
 import app.gamenative.PrefManager
 import app.gamenative.ui.theme.settingsTileColorsAlt
 import com.winlator.PrefManager as WinlatorPrefManager
@@ -134,48 +134,61 @@ fun SettingsGroupDebug() {
         onDismissRequest = { showWineLogDialog = false },
     )
 
-    SettingsGroup("Debug") {
+    SettingsGroup(title = { Text(text = "Debug") }) {
         // Link to open channel selector
         SettingsMenuLink(
-            title = "Select Wine Debug Channels",
-            subtitle = if (selectedWineChannels.isNotEmpty()) selectedWineChannels.joinToString(",") else "No channels selected",
+            colors = settingsTileColors(),
+            title = { Text(text = "Select Wine Debug Channels") },
+            subtitle = { Text(text = if (selectedWineChannels.isNotEmpty()) selectedWineChannels.joinToString(",") else "No channels selected") },
             onClick = { showChannelsDialog = true },
         )
         SettingsSwitch(
-            checked = enableWineDebugPref,
-            title = "Enable Wine Debug Logs",
-            subtitle = "Write Wine debug output to file",
+            colors = settingsTileColorsAlt(),
+            state = enableWineDebugPref,
+            title = { Text(text = "Enable Wine Debug Logs") },
+            subtitle = { Text(text = "Write Wine debug output to file") },
             onCheckedChange = {
                 enableWineDebugPref = it
                 PrefManager.enableWineDebug = it
             },
         )
         SettingsSwitch(
-            checked = enableBox86Logs,
-            title = "Enable Box86/64 Logs",
-            subtitle = "Write Box86 & Box64 debug output to file",
+            colors = settingsTileColorsAlt(),
+            state = enableBox86Logs,
+            title = { Text(text = "Enable Box86/64 Logs") },
+            subtitle = { Text(text = "Write Box86 & Box64 debug output to file") },
             onCheckedChange = {
                 enableBox86Logs = it
                 WinlatorPrefManager.putBoolean("enable_box86_64_logs", it)
             },
         )
         SettingsMenuLink(
-            title = "View latest crash",
-            subtitle = if (latestCrashFile != null) {
-                "Shows the most recent crash log"
-            } else {
-                "No recent crash logs found"
+            colors = settingsTileColors(),
+            title = { Text(text = "View latest crash") },
+            subtitle = {
+                val text = if (latestCrashFile != null) {
+                    "Shows the most recent crash log"
+                } else {
+                    "No recent crash logs found"
+                }
+                Text(text = text)
             },
+            enabled = latestCrashFile != null,
             onClick = { showLogcatDialog = true },
         )
 
         SettingsMenuLink(
-            title = "View game debug log",
-            subtitle = if (latestWineLogFile != null) {
-                "Shows the latest Wine/Box64 debug log"
-            } else {
-                "No Wine debug logs found"
+            colors = settingsTileColors(),
+            title = { Text(text = "View game debug log") },
+            subtitle = {
+                val text = if (latestWineLogFile != null) {
+                    "Shows the latest Wine/Box64 debug log"
+                } else {
+                    "No Wine debug logs found"
+                }
+                Text(text = text)
             },
+            enabled = latestWineLogFile != null,
             onClick = { showWineLogDialog = true },
         )
 
@@ -189,8 +202,9 @@ fun SettingsGroupDebug() {
                     Toast.makeText(context, "Long click to activate", Toast.LENGTH_SHORT).show()
                 },
             ),
-            title = "Clear Preferences",
-            subtitle = "[Closes App] Logs out the client and wipes local preference data.",
+            colors = settingsTileColorsDebug(),
+            title = { Text(text = "Clear Preferences") },
+            subtitle = { Text("[Closes App] Logs out the client and wipes local preference data.") },
             onClick = {},
         )
 
@@ -205,8 +219,9 @@ fun SettingsGroupDebug() {
                     Toast.makeText(context, "Long click to activate", Toast.LENGTH_SHORT).show()
                 },
             ),
-            title = "Clear Local Database",
-            subtitle = "[Closes app] May help fix issues with library items or messages.",
+            colors = settingsTileColorsDebug(),
+            title = { Text(text = "Clear Local Database") },
+            subtitle = { Text("[Closes app] May help fix issues with library items or messages.") },
             onClick = {},
         )
 
@@ -220,8 +235,9 @@ fun SettingsGroupDebug() {
                     Toast.makeText(context, "Long click to activate", Toast.LENGTH_SHORT).show()
                 },
             ),
-            title = "Clear Image Cache",
-            subtitle = "Remove all images that were loaded.",
+            colors = settingsTileColorsDebug(),
+            title = { Text(text = "Clear Image Cache") },
+            subtitle = { Text(text = "Remove all images that were loaded.") },
             onClick = {},
         )
     }

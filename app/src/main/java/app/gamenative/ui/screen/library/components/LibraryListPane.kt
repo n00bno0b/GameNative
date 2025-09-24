@@ -46,7 +46,7 @@ import app.gamenative.ui.internal.fakeAppInfo
 import app.gamenative.service.DownloadService
 import app.gamenative.ui.theme.PluviaTheme
 import app.gamenative.ui.component.topbar.AccountButton
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -147,21 +147,16 @@ internal fun LibraryListPane(
                     }
 
                     // User profile button
-                    Row {
-                        IconButton(onClick = { onModalBottomSheet(true) }) {
-                            Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filter")
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                                .padding(8.dp)
-                        ) {
-                            AccountButton(
-                                onNavigateRoute = onNavigateRoute,
-                                onLogout = onLogout
-                            )
-                        }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                            .padding(8.dp)
+                    ) {
+                        AccountButton(
+                            onNavigateRoute = onNavigateRoute,
+                            onLogout = onLogout
+                        )
                     }
                 }
             }
@@ -185,6 +180,13 @@ internal fun LibraryListPane(
             Box(
                 modifier = Modifier.fillMaxSize(),
             ) {
+                var focusedIndex by remember { mutableStateOf(-1) }
+                val focusRequester = remember { FocusRequester() }
+                LaunchedEffect(Unit) {
+                    if (state.appInfoList.isNotEmpty()) {
+                        focusRequester.requestFocus()
+                    }
+                }
                 LazyRow(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
@@ -194,11 +196,10 @@ internal fun LibraryListPane(
                         bottom = 72.dp
                     ),
                 ) {
-                    var focusedIndex by remember { mutableStateOf(-1) }
                     items(items = state.appInfoList, key = { it.index }) { item ->
                         val scale = if (focusedIndex == item.index) 1.1f else 1f
                         GameTile(
-                            modifier = Modifier.animateItem(),
+                            modifier = if (item.index == 0) Modifier.focusRequester(focusRequester) else Modifier,
                             appInfo = item,
                             onClick = { onNavigate(item.appId) },
                             onFocus = { focusedIndex = item.index },
@@ -258,7 +259,6 @@ private fun Preview_LibraryListPane() {
                         appId = item.id,
                         name = item.name,
                         iconHash = item.iconHash,
-                        headerImageUrl = "https://steamcdn-a.akamaihd.net/steam/apps/400/header.jpg",
                         isShared = idx % 2 == 0,
                     )
                 },

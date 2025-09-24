@@ -106,6 +106,7 @@ class LibraryViewModel @Inject constructor(
 
     private fun onFilterApps(paginationPage: Int = 0) {
         // May be filtering 1000+ apps - in future should paginate at the point of DAO request
+        val startTime = System.currentTimeMillis()
         Timber.tag("LibraryViewModel").d("onFilterApps")
         viewModelScope.launch {
             val currentState = _state.value
@@ -172,6 +173,7 @@ class LibraryViewModel @Inject constructor(
                         name = item.name,
                         iconHash = item.clientIconHash,
                         headerImageUrl = item.getHeaderImageUrl(),
+                        smallCapsuleImageUrl = item.getSmallCapsuleUrl(),
                         isShared = (thisSteamId != 0 && !item.ownerAccountId.contains(thisSteamId)),
                     )
                 }
@@ -186,6 +188,8 @@ class LibraryViewModel @Inject constructor(
                     totalAppsInFilter = totalFound,
                     )
             }
+            val endTime = System.currentTimeMillis()
+            Timber.tag("LibraryViewModel").d("onFilterApps took ${endTime - startTime}ms")
         }
     }
 }

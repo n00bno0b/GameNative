@@ -99,6 +99,31 @@ fun StickerImage(
     EmoticonImage(size, image)
 }
 
+@Composable
+internal fun GameTileImage(
+    modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+    contentDescription: String? = null,
+    image: () -> Any?,
+) {
+    CoilImage(
+        modifier = modifier
+            .then(imageModifier),
+        imageModel = image,
+        imageOptions = ImageOptions(
+            contentScale = ContentScale.Crop,
+            contentDescription = contentDescription,
+        ),
+        loading = {
+            CircularProgressIndicator()
+        },
+        failure = {
+            Icon(Icons.Filled.QuestionMark, null)
+        },
+        previewPlaceholder = painterResource(R.drawable.ic_logo_color),
+    )
+}
+
 @Preview
 @Composable
 private fun Preview_ListItemImage() {

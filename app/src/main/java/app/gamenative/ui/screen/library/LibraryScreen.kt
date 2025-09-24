@@ -20,6 +20,14 @@ import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,38 +95,85 @@ private fun LibraryScreenContent(
     onNavigateRoute: (String) -> Unit,
     onLogout: () -> Unit,
 ) {
+    val navigator = rememberListDetailPaneScaffoldNavigator()
     var selectedAppId by remember { mutableStateOf<Int?>(null) }
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
 
-    BackHandler(selectedAppId != null) { selectedAppId = null }
-    val safePaddingModifier =
-        if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT)
-            Modifier.displayCutoutPadding()
-        else
-            Modifier
+    LaunchedEffect(isExpanded, state.appInfoList) {
+        if (isExpanded && state.appInfoList.isNotEmpty()) {
+            selectedAppId = state.appInfoList.first().appId
+        }
+    }
 
-    Box(
-        Modifier.background(MaterialTheme.colorScheme.background)
-        .then(safePaddingModifier)) {
-        if (selectedAppId == null) {
-            LibraryListPane(
-                state = state,
-                listState = listState,
-                sheetState = sheetState,
-                onFilterChanged = onFilterChanged,
-                onPageChange = onPageChange,
-                onModalBottomSheet = onModalBottomSheet,
-                onIsSearching = onIsSearching,
-                onSearchQuery = onSearchQuery,
-                onNavigateRoute = onNavigateRoute,
-                onLogout = onLogout,
-                onNavigate = { appId -> selectedAppId = appId }
-            )
-        } else {
-            LibraryDetailPane(
-                appId = selectedAppId ?: SteamService.INVALID_APP_ID,
-                onBack = { selectedAppId = null },
-                onClickPlay = { onClickPlay(selectedAppId!!, it) },
-            )
+    BackHandler(navigator.canNavigateBack()) { navigator.navigateBack() }
+
+    if (isExpanded) {
+        ListDetailPaneScaffold(
+            directive = navigator.scaffoldDirective,
+            value = navigator.scaffoldValue,
+            listPane = {
+                AnimatedPane(Modifier) {
+                    LibraryListPane(
+                        state = state,
+                        listState = listState,
+                        sheetState = sheetState,
+                        onFilterChanged = onFilterChanged,
+                        onPageChange = onPageChange,
+                        onModalBottomSheet = onModalBottomSheet,
+                        onIsSearching = onIsSearching,
+                        onSearchQuery = onSearchQuery,
+                        onNavigateRoute = onNavigateRoute,
+                        onLogout = onLogout,
+                        onNavigate = { appId ->
+                            selectedAppId = appId
+                            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        }
+                    )
+                }
+            },
+            detailPane = {
+                AnimatedPane(Modifier) {
+                    LibraryDetailPane(
+                        appId = selectedAppId ?: SteamService.INVALID_APP_ID,
+                        onBack = { navigator.navigateBack() },
+                        onClickPlay = { onClickPlay(selectedAppId!!, it) },
+                    )
+                }
+            },
+        )
+    } else {
+        BackHandler(selectedAppId != null) { selectedAppId = null }
+        val safePaddingModifier =
+            if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT)
+                Modifier.displayCutoutPadding()
+            else
+                Modifier
+
+        Box(
+            Modifier.background(MaterialTheme.colorScheme.background)
+            .then(safePaddingModifier)) {
+            if (selectedAppId == null) {
+                LibraryListPane(
+                    state = state,
+                    listState = listState,
+                    sheetState = sheetState,
+                    onFilterChanged = onFilterChanged,
+                    onPageChange = onPageChange,
+                    onModalBottomSheet = onModalBottomSheet,
+                    onIsSearching = onIsSearching,
+                    onSearchQuery = onSearchQuery,
+                    onNavigateRoute = onNavigateRoute,
+                    onLogout = onLogout,
+                    onNavigate = { appId -> selectedAppId = appId }
+                )
+            } else {
+                LibraryDetailPane(
+                    appId = selectedAppId ?: SteamService.INVALID_APP_ID,
+                    onBack = { selectedAppId = null },
+                    onClickPlay = { onClickPlay(selectedAppId!!, it) },
+                )
+            }
         }
     }
 }

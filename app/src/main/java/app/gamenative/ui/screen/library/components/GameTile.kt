@@ -16,10 +16,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.gamenative.data.LibraryItem
-import app.gamenative.ui.util.ListItemImage
+import app.gamenative.ui.util.GameTileImage
 
 @Composable
 internal fun GameTile(
@@ -29,10 +30,12 @@ internal fun GameTile(
     onFocus: () -> Unit,
     scale: Float = 1f,
 ) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val tileWidth = screenWidth / 4
     Card(
         modifier = modifier
-            .width(200.dp)
-            .height(280.dp)
+            .width(tileWidth)
+            .aspectRatio(0.7f)
             .padding(8.dp)
             .clickable { onClick() }
             .onFocusChanged { if (it.isFocused) onFocus() }
@@ -46,11 +49,9 @@ internal fun GameTile(
         ),
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            ListItemImage(
+            GameTileImage(
                 modifier = Modifier.fillMaxSize(),
-                imageModifier = Modifier.clip(RoundedCornerShape(16.dp)),
-                image = { appInfo.headerImageUrl ?: "" },
-                contentScale = ContentScale.Crop
+                image = { appInfo.smallCapsuleImageUrl ?: "" },
             )
             Box(
                 modifier = Modifier

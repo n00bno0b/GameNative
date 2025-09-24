@@ -61,8 +61,6 @@ import app.gamenative.utils.IntentLaunchManager
 import app.gamenative.R
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.winlator.container.ContainerManager
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import com.winlator.xenvironment.ImageFsInstaller
 import `in`.dragonbra.javasteam.protobufs.steamclient.SteammessagesClientObjects.ECloudPendingRemoteOperation
 import java.util.Date
@@ -591,8 +589,6 @@ fun PluviaMain(
         NavHost(
             navController = navController,
             startDestination = PluviaScreen.LoginUser.route,
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
         ) {
             /** Login **/
             /** Login **/
@@ -707,6 +703,7 @@ fun preLaunchApp(
     onSuccess: KFunction2<Context, Int, Unit>,
     retryCount: Int = 0,
 ) {
+    val startTime = System.currentTimeMillis()
     setLoadingDialogVisible(true)
     // TODO: add a way to cancel
     // TODO: add fail conditions
@@ -923,7 +920,11 @@ fun preLaunchApp(
 
             SyncResult.UpToDate,
             SyncResult.Success,
-            -> onSuccess(context, appId)
+            -> {
+                onSuccess(context, appId)
+                val endTime = System.currentTimeMillis()
+                Timber.tag("PluviaMain").d("preLaunchApp took ${endTime - startTime}ms")
+            }
         }
     }
 }

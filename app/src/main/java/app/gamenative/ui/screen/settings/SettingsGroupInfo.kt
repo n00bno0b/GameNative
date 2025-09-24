@@ -15,13 +15,13 @@ import app.gamenative.PrefManager
 import app.gamenative.ui.component.dialog.LibrariesDialog
 import app.gamenative.ui.theme.settingsTileColors
 import app.gamenative.ui.theme.settingsTileColorsAlt
-import app.gamenative.ui.component.settings.SettingsGroup
-import app.gamenative.ui.component.settings.SettingsMenuLink
-import app.gamenative.ui.component.settings.SettingsSwitch
+import com.alorma.compose.settings.ui.SettingsGroup
+import com.alorma.compose.settings.ui.SettingsMenuLink
+import com.alorma.compose.settings.ui.SettingsSwitch
 
 @Composable
 fun SettingsGroupInfo() {
-    SettingsGroup("Info") {
+    SettingsGroup(title = { Text(text = "Info") }) {
         val uriHandler = LocalUriHandler.current
         var askForTip by rememberSaveable { mutableStateOf(!PrefManager.tipped) }
         var showLibrariesDialog by rememberSaveable { mutableStateOf(false) }
@@ -32,8 +32,10 @@ fun SettingsGroupInfo() {
         )
 
         SettingsMenuLink(
-            title = "Send tip",
-            subtitle = "Contribute to ongoing development",
+            colors = settingsTileColors(),
+            title = { Text("Send tip") },
+            subtitle = { Text(text = "Contribute to ongoing development") },
+            icon = { Icon(imageVector = Icons.Filled.MonetizationOn, contentDescription = "Tip") },
             onClick = {
                 uriHandler.openUri(Constants.Misc.KO_FI_LINK)
                 askForTip = false
@@ -42,9 +44,10 @@ fun SettingsGroupInfo() {
         )
 
         SettingsSwitch(
-            checked = askForTip,
-            title = "Ask for tip on startup",
-            subtitle = "Stops the tip message from appearing",
+            colors = settingsTileColorsAlt(),
+            state = askForTip,
+            title = { Text("Ask for tip on startup") },
+            subtitle = { Text(text = "Stops the tip message from appearing") },
             onCheckedChange = {
                 askForTip = it
                 PrefManager.tipped = !askForTip
@@ -52,20 +55,23 @@ fun SettingsGroupInfo() {
         )
 
         SettingsMenuLink(
-            title = "Source code",
-            subtitle = "View the source code of this project",
+            colors = settingsTileColors(),
+            title = { Text(text = "Source code") },
+            subtitle = { Text(text = "View the source code of this project") },
             onClick = { uriHandler.openUri(Constants.Misc.GITHUB_LINK) },
         )
 
         SettingsMenuLink(
-            title = "Libraries Used",
-            subtitle = "See what technologies make GameNative possible",
+            colors = settingsTileColors(),
+            title = { Text(text = "Libraries Used") },
+            subtitle = { Text(text = "See what technologies make GameNative possible") },
             onClick = { showLibrariesDialog = true },
         )
 
         SettingsMenuLink(
-            title = "Privacy Policy",
-            subtitle = "Opens a link to GameNative's privacy policy",
+            colors = settingsTileColors(),
+            title = { Text(text = "Privacy Policy") },
+            subtitle = { Text(text = "Opens a link to GameNative's privacy policy") },
             onClick = {
                 uriHandler.openUri(Constants.Misc.PRIVACY_LINK)
             },

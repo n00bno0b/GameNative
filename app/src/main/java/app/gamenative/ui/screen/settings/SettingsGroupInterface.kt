@@ -18,8 +18,8 @@ import app.gamenative.PrefManager
 import app.gamenative.enums.AppTheme
 import app.gamenative.ui.component.dialog.SingleChoiceDialog
 import app.gamenative.ui.theme.settingsTileColorsAlt
-import app.gamenative.ui.component.settings.SettingsGroup
-import app.gamenative.ui.component.settings.SettingsSwitch
+import com.alorma.compose.settings.ui.SettingsGroup
+import com.alorma.compose.settings.ui.SettingsSwitch
 import com.materialkolor.PaletteStyle
 import kotlinx.serialization.json.Json
 import androidx.compose.runtime.remember
@@ -27,10 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import app.gamenative.ui.component.settings.SettingsListDropdown
 import app.gamenative.ui.theme.PluviaTheme
-import app.gamenative.ui.component.settings.SettingsMenuLink
+import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import kotlin.math.roundToInt
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 
 @Composable
 fun SettingsGroupInterface(
@@ -65,11 +64,12 @@ fun SettingsGroupInterface(
         steamRegionsList.indexOfFirst { it.first == PrefManager.cellId }.takeIf { it >= 0 } ?: 0
     ) }
 
-    SettingsGroup("Interface") {
+    SettingsGroup(title = { Text(text = "Interface") }) {
         SettingsSwitch(
-            title = "Open web links externally",
-            subtitle = "Links open with your main web browser",
-            checked = openWebLinks,
+            colors = settingsTileColorsAlt(),
+            title = { Text(text = "Open web links externally") },
+            subtitle = { Text(text = "Links open with your main web browser") },
+            state = openWebLinks,
             onCheckedChange = {
                 openWebLinks = it
                 PrefManager.openWebLinksExternally = it
@@ -78,12 +78,13 @@ fun SettingsGroupInterface(
     }
 
     // Downloads settings
-    SettingsGroup("Downloads") {
+    SettingsGroup(title = { Text(text = "Downloads") }) {
         var wifiOnlyDownload by rememberSaveable { mutableStateOf(PrefManager.downloadOnWifiOnly) }
         SettingsSwitch(
-            title = "Download only over Wi-Fi",
-            subtitle = "Prevent downloads on cellular data",
-            checked = wifiOnlyDownload,
+            colors = settingsTileColorsAlt(),
+            title = { Text(text = "Download only over Wi-Fi") },
+            subtitle = { Text(text = "Prevent downloads on cellular data") },
+            state = wifiOnlyDownload,
             onCheckedChange = {
                 wifiOnlyDownload = it
                 PrefManager.downloadOnWifiOnly = it
@@ -108,9 +109,16 @@ fun SettingsGroupInterface(
         }
         var useExternalStorage by rememberSaveable { mutableStateOf(PrefManager.useExternalStorage) }
         SettingsSwitch(
-            title = "Write to external storage",
-            subtitle = if (dirs.isEmpty()) "No external storage detected" else "Save games to external storage",
-            checked = useExternalStorage,
+            colors = settingsTileColorsAlt(),
+            enabled  = dirs.isNotEmpty(),
+            title = { Text(text = "Write to external storage") },
+            subtitle = {
+                if (dirs.isEmpty())
+                    Text("No external storage detected")
+                else
+                    Text("Save games to external storage")
+            },
+            state = useExternalStorage,
             onCheckedChange = {
                 useExternalStorage = it
                 PrefManager.useExternalStorage = it
@@ -128,20 +136,21 @@ fun SettingsGroupInterface(
                 )
             }
             SettingsListDropdown(
-                title = "Storage volume",
-                subtitle = labels.getOrElse(selectedIndex) { "" },
+                title = { Text(text = "Storage volume") },
                 items = labels,
-                selectedIndex = selectedIndex,
+                value = selectedIndex,
                 onItemSelected = { idx ->
                     selectedIndex = idx
                     PrefManager.externalStoragePath = dirs[idx].absolutePath
-                }
+                },
+                colors = settingsTileColorsAlt()
             )
         }
         // Steam download server selection
         SettingsMenuLink(
-            title = "Steam Download Server",
-            subtitle = steamRegionsList.getOrNull(selectedRegionIndex)?.second ?: "Default",
+            colors = settingsTileColorsAlt(),
+            title = { Text(text = "Steam Download Server") },
+            subtitle = { Text(text = steamRegionsList.getOrNull(selectedRegionIndex)?.second ?: "Default") },
             onClick = { openRegionDialog = true }
         )
     }

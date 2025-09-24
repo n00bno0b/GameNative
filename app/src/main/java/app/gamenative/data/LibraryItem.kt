@@ -11,6 +11,7 @@ data class LibraryItem(
     val name: String = "",
     val iconHash: String = "",
     val headerImageUrl: String? = null,
+    val smallCapsuleImageUrl: String? = null,
     val isShared: Boolean = false,
 ) {
     val clientIconUrl: String

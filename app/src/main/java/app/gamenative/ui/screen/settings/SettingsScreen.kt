@@ -23,6 +23,17 @@ import app.gamenative.enums.AppTheme
 import app.gamenative.ui.component.topbar.BackButton
 import app.gamenative.ui.theme.PluviaTheme
 import com.materialkolor.PaletteStyle
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.AnimatedPane
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 
 // See link for implementation
 // https://github.com/alorma/Compose-Settings
@@ -44,7 +55,7 @@ fun SettingsScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun SettingsScreenContent(
     appTheme: AppTheme,
@@ -55,34 +66,78 @@ private fun SettingsScreenContent(
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
+    val navigator = rememberListDetailPaneScaffoldNavigator()
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val isExpanded = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Expanded
+    var selectedCategory by rememberSaveable { mutableStateOf(SettingsCategory.Emulation) }
+    val categories = SettingsCategory.values()
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Settings") },
-                navigationIcon = {
-                    BackButton(onClick = onBack)
-                },
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .displayCutoutPadding()
-                .fillMaxSize()
-                .verticalScroll(scrollState),
-        ) {
-            SettingsGroupEmulation()
-            SettingsGroupInterface(
-                appTheme = appTheme,
-                paletteStyle = paletteStyle,
-                onAppTheme = onAppTheme,
-                onPaletteStyle = onPaletteStyle,
-            )
-            SettingsGroupInfo()
-            SettingsGroupDebug()
+    if (isExpanded) {
+        ListDetailPaneScaffold(
+            directive = navigator.scaffoldDirective,
+            value = navigator.scaffoldValue,
+            listPane = {
+                AnimatedPane(Modifier) {
+                    SettingsCategoryList(
+                        categories = categories.map { it.name },
+                        onCategorySelected = {
+                            selectedCategory = SettingsCategory.valueOf(it)
+                            navigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        }
+                    )
+                }
+            },
+            detailPane = {
+                AnimatedPane(Modifier) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        when (selectedCategory) {
+                            SettingsCategory.Emulation -> SettingsGroupEmulation()
+                            SettingsCategory.Interface -> SettingsGroupInterface(
+                                appTheme = appTheme,
+                                paletteStyle = paletteStyle,
+                                onAppTheme = onAppTheme,
+                                onPaletteStyle = onPaletteStyle,
+                            )
+                            SettingsCategory.Info -> SettingsGroupInfo()
+                            SettingsCategory.Debug -> SettingsGroupDebug()
+                        }
+                    }
+                }
+            }
+        )
+    } else {
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "Settings") },
+                    navigationIcon = {
+                        BackButton(onClick = onBack)
+                    },
+                )
+            },
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .displayCutoutPadding()
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
+            ) {
+                SettingsGroupEmulation()
+                SettingsGroupInterface(
+                    appTheme = appTheme,
+                    paletteStyle = paletteStyle,
+                    onAppTheme = onAppTheme,
+                    onPaletteStyle = onPaletteStyle,
+                )
+                SettingsGroupInfo()
+                SettingsGroupDebug()
+            }
         }
     }
 }
