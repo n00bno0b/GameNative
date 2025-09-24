@@ -10,6 +10,7 @@ data class LibraryItem(
     val appId: Int = 0,
     val name: String = "",
     val iconHash: String = "",
+    val headerImageUrl: String? = null,
     val isShared: Boolean = false,
 ) {
     val clientIconUrl: String

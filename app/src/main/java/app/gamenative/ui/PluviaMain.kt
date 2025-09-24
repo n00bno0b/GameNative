@@ -61,6 +61,8 @@ import app.gamenative.utils.IntentLaunchManager
 import app.gamenative.R
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.winlator.container.ContainerManager
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import com.winlator.xenvironment.ImageFsInstaller
 import `in`.dragonbra.javasteam.protobufs.steamclient.SteammessagesClientObjects.ECloudPendingRemoteOperation
 import java.util.Date
@@ -589,6 +591,8 @@ fun PluviaMain(
         NavHost(
             navController = navController,
             startDestination = PluviaScreen.LoginUser.route,
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
         ) {
             /** Login **/
             /** Login **/

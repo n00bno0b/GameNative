@@ -147,16 +147,21 @@ internal fun LibraryListPane(
                     }
 
                     // User profile button
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-                            .padding(8.dp)
-                    ) {
-                        AccountButton(
-                            onNavigateRoute = onNavigateRoute,
-                            onLogout = onLogout
-                        )
+                    Row {
+                        IconButton(onClick = { onModalBottomSheet(true) }) {
+                            Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filter")
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                                .padding(8.dp)
+                        ) {
+                            AccountButton(
+                                onNavigateRoute = onNavigateRoute,
+                                onLogout = onLogout
+                            )
+                        }
                     }
                 }
             }
@@ -180,30 +185,31 @@ internal fun LibraryListPane(
             Box(
                 modifier = Modifier.fillMaxSize(),
             ) {
-                LazyColumn(
+                LazyRow(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
-                        start = 20.dp,
-                        end = 20.dp,
+                        start = 12.dp,
+                        end = 12.dp,
                         bottom = 72.dp
                     ),
                 ) {
+                    var focusedIndex by remember { mutableStateOf(-1) }
                     items(items = state.appInfoList, key = { it.index }) { item ->
-                        AppItem(
+                        val scale = if (focusedIndex == item.index) 1.1f else 1f
+                        GameTile(
                             modifier = Modifier.animateItem(),
                             appInfo = item,
-                            onClick = { onNavigate(item.appId) }
+                            onClick = { onNavigate(item.appId) },
+                            onFocus = { focusedIndex = item.index },
+                            scale = scale
                         )
-                        if (item.index < state.appInfoList.lastIndex) {
-                            HorizontalDivider()
-                        }
                     }
                     if (state.appInfoList.size < state.totalAppsInFilter) {
                         item {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .fillParentMaxHeight()
                                     .padding(16.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -211,21 +217,6 @@ internal fun LibraryListPane(
                             }
                         }
                     }
-                }
-
-                // Filter FAB - always show
-                if (!state.isSearching) {
-                    ExtendedFloatingActionButton(
-                        text = { Text(text = "Filters") },
-                        expanded = expandedFab,
-                        icon = { Icon(imageVector = Icons.Default.FilterList, contentDescription = null) },
-                        onClick = { onModalBottomSheet(true) },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(24.dp)
-                    )
                 }
 
                 if (state.modalBottomSheet) {
@@ -267,6 +258,7 @@ private fun Preview_LibraryListPane() {
                         appId = item.id,
                         name = item.name,
                         iconHash = item.iconHash,
+                        headerImageUrl = "https://steamcdn-a.akamaihd.net/steam/apps/400/header.jpg",
                         isShared = idx % 2 == 0,
                     )
                 },

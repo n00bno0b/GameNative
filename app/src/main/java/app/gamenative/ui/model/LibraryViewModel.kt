@@ -171,6 +171,7 @@ class LibraryViewModel @Inject constructor(
                         appId = item.id,
                         name = item.name,
                         iconHash = item.clientIconHash,
+                        headerImageUrl = item.getHeaderImageUrl(),
                         isShared = (thisSteamId != 0 && !item.ownerAccountId.contains(thisSteamId)),
                     )
                 }
